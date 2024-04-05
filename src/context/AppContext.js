@@ -31,18 +31,21 @@ export const AppReducer = (state, action) => {
                 }
             }
             case 'RED_EXPENSE':
-                const red_expenses = state.expenses.map((currentExp)=> {
-                    if (currentExp.name === action.payload.name && currentExp.cost - action.payload.cost >= 0) {
-                        currentExp.cost =  currentExp.cost - action.payload.cost;
-                        budget = state.budget + action.payload.cost
-                    }
-                    return currentExp
-                })
-                action.type = "DONE";
-                return {
-                    ...state,
-                    expenses: [...red_expenses],
-                };
+    const updatedExpenses = state.expenses.map((currentExp) => {
+        if (currentExp.name === action.payload.name) {
+            // Ensure the cost doesn't go below 0
+            currentExp.cost = Math.max(0, currentExp.cost - 10);
+            // Update the budget accordingly
+            budget = state.budget + 10;
+        }
+        return currentExp;
+    });
+    action.type = "DONE";
+    return {
+        ...state,
+        expenses: [...updatedExpenses],
+        budget
+    };
             case 'DELETE_EXPENSE':
             action.type = "DONE";
             state.expenses.map((currentExp)=> {
@@ -65,11 +68,10 @@ export const AppReducer = (state, action) => {
                 ...state,
             };
         case 'CHG_CURRENCY':
-            action.type = "DONE";
-            state.currency = action.payload;
             return {
-                ...state
-            }
+                ...state,
+                currency: action.payload
+            };
 
         default:
             return state;
@@ -83,10 +85,11 @@ const initialState = {
         { id: "Marketing", name: 'Marketing', cost: 50 },
         { id: "Finance", name: 'Finance', cost: 300 },
         { id: "Sales", name: 'Sales', cost: 70 },
-        { id: "Human Resource", name: 'Human Resource', cost: 40 },
+        { id: "HR", name: 'HR', cost: 40 },
         { id: "IT", name: 'IT', cost: 500 },
+        { id: "Admin", name: 'Admin', cost: 50}
     ],
-    currency: '£'
+    currency: '$'
 };
 
 // 2. Creates the context this is the thing our components import and use to get the state
@@ -97,6 +100,16 @@ export const AppContext = createContext();
 export const AppProvider = (props) => {
     // 4. Sets up the app state. takes a reducer, and an initial state
     const [state, dispatch] = useReducer(AppReducer, initialState);
+
+    // Define setBudget function
+    const setBudget = (newBudget) => {
+        dispatch({ type: 'SET_BUDGET', payload: newBudget });
+    };
+
+    const setCurrency = (newCurrency) => {
+        dispatch({ type: 'CHG_CURRENCY', payload: newCurrency });
+    };
+
     let remaining = 0;
 
     if (state.expenses) {
@@ -113,7 +126,9 @@ export const AppProvider = (props) => {
                 budget: state.budget,
                 remaining: remaining,
                 dispatch,
-                currency: state.currency
+                setBudget,
+                currency: state.currency,
+                setCurrency
             }}
         >
             {props.children}

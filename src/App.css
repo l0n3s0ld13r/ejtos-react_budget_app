@@ -36,3 +36,24 @@
     transform: rotate(360deg);
   }
 }
+
+.currency-select {
+    background-color: rgb(123, 148, 123);
+    color: white;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.currency-select option:hover {
+    background-color: white;
+    color: black;
+}
+  
+.alert.alert-info {
+    background-color: lightgreen; /* Change this to the desired background color */
+    color: black; /* Change this to the desired text color */
+    border-color: green; /* Change this to the desired border color */
+  }
+  
+
